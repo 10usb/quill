@@ -75,6 +75,7 @@ class Element extends Node {
 		
 		$child->parent	= $this;
 		$this->children[] = $child;
+		return $child;
 	}
 	
 	/**
@@ -95,7 +96,7 @@ class Element extends Node {
 	 * @return \quill\Element
 	 */
 	public function write($tagName, $text = ''){
-		$this->append($node= new Element($tagName));
+		$this->append($node = new Element($tagName));
 		if($text) $node->text($text);
 		return $node;
 	}

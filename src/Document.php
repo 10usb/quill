@@ -73,7 +73,7 @@ class Document {
 	public function save($uri = 'php://output'){
 		$writer = new \XMLWriter();
 		$writer->openUri($uri);
-		//$writer->setIndentString("\t");
+		$writer->setIndentString("\t");
 		$writer->setIndent(true);
 		
 		$writer->startDocument('1.0', 'UTF-8');
