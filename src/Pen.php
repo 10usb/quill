@@ -25,12 +25,33 @@ class Pen {
 	
 	/**
 	 * 
+	 * @var string
+	 */
+	private $buffer;
+	
+	/**
+	 *
+	 * @var boolean
+	 */
+	private $preceding;
+	
+	/**
+	 *
+	 * @var boolean
+	 */
+	private $trailing;
+	
+	/**
+	 * 
 	 * @param \quill\Repository $repository
 	 * @param \quill\Book $book
 	 */
 	public function __construct($repository, $book){
 		$this->repository	= $repository;
 		$this->book			= $book;
+		$this->buffer		= false;
+		$this->preceding	= false;
+		$this->trailing		= false;
 	}
 	
 	/**
@@ -60,7 +81,7 @@ class Pen {
 		
 		$height = $this->path->getValue('height')->getMeasurement('pt');
 		
-		$this->element($body, $section->getBody());
+		$this->element($body, $section->getBody(), true);
 		
 		
 		if(isset($_GET['debug'])){
@@ -100,13 +121,16 @@ class Pen {
 			}
 		}
 		
-		
 		switch($this->path->getValue('display')){
 			case 'block':
-				$this->children($parent->appendBlock(new Section($parent->getContentWidth())), $element);
+				$this->trailing = true;
+				$this->flush($parent);
+				$this->children($parent->appendBlock(new Section($parent->getContentWidth())), $element, true);
+				$this->preceding = true;
 			break;
 			case 'inline':
-				$this->children($parent, $element);
+				$this->flush($parent);
+				$this->children($parent, $element, false);
 			break;
 			default: throw new \Exception('Unknown display type');
 		}
@@ -119,17 +143,43 @@ class Pen {
 	 * @param \alf\Container $parent
 	 * @param \quill\Element $element
 	 */
-	private function children($parent, $element){
+	private function children($parent, $element, $block){
+		if($block) $this->preceding = true;
+		
 		foreach($element->getChildren() as $child){
 			if($child instanceof Element){
 				$this->element($parent, $child);
 			}elseif($child instanceof Text){
-				$font = $this->repository->getFont('Helvetica', 12);
-				$color = $this->path->getValue('color');
-				$parent->appendText($child->getValue(), $font, sprintf('#%02X%02X%02X', $color->getRed(), $color->getGreen(), $color->getBlue()));
+				if($this->buffer!==false) throw new \Exception('Unexpected text "'.$this->buffer.'"');
+				$this->buffer		= $child->getValue();
+				$this->bufferFont	= $this->repository->getFont('Helvetica', 12);
+				$this->bufferColor	= $this->path->getValue('color');
 			}else{
 				throw new \Exception('Unknown node type');
 			}
 		}
+		
+		if($block) $this->trailing = true;
+		$this->flush($parent);
+	}
+	
+	/**
+	 * 
+	 * @return NULL|boolean
+	 */
+	private function flush($parent){
+		if($this->buffer === false) return null;
+		
+		$text = $this->preceding ? ($this->trailing ? trim($this->buffer) : ltrim($this->buffer)) : ($this->trailing ? rtrim($this->buffer) : $this->buffer);
+		
+		$this->buffer		= false;
+		$this->preceding	= false;
+		$this->trailing		= false;
+		
+		if($text){
+			$parent->appendText($text, $this->bufferFont, sprintf('#%02X%02X%02X', $this->bufferColor->getRed(), $this->bufferColor->getGreen(), $this->bufferColor->getBlue()));
+			return true;
+		}
+		return false;
 	}
 }
