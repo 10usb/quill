@@ -12,7 +12,11 @@ class Translator implements \csslib\query\Translator {
 		$value = null;
 		
 		if($property) switch($key){
-			case 'color':
+			case 'font-family':
+			case 'font-size':
+			case 'font-style':
+			case 'font-weight':
+			case 'font-color':
 			case 'width':
 			case 'height':
 				$value = $property->getValueList(0)->getValue(0);

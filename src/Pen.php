@@ -152,8 +152,13 @@ class Pen {
 			}elseif($child instanceof Text){
 				if($this->buffer!==false) throw new \Exception('Unexpected text "'.$this->buffer.'"');
 				$this->buffer		= $child->getValue();
-				$this->bufferFont	= $this->repository->getFont('Helvetica', 12);
-				$this->bufferColor	= $this->path->getValue('color');
+				$this->bufferFont	= $this->repository->getFont(
+															$this->path->getValue('font-family')->getText(),
+															$this->path->getValue('font-size')->getMeasurement('pt'),
+															$this->path->getValue('font-style')->getText() == 'italic',
+															$this->path->getValue('font-weight')->getText() == 'bold'
+														);
+				$this->bufferColor	= $this->path->getValue('font-color');
 			}else{
 				throw new \Exception('Unknown node type');
 			}
@@ -165,6 +170,7 @@ class Pen {
 	
 	/**
 	 * 
+	 * @param \alf\Container $parent
 	 * @return NULL|boolean
 	 */
 	private function flush($parent){
