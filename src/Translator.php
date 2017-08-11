@@ -11,7 +11,7 @@ class Translator implements \csslib\query\Translator {
 		$property = $chain->getProperty($key);
 		$value = null;
 		
-		if($property) switch($key){
+		switch($key){
 			case 'font-family':
 			case 'font-size':
 			case 'font-style':
@@ -19,14 +19,17 @@ class Translator implements \csslib\query\Translator {
 			case 'font-color':
 			case 'width':
 			case 'height':
-				$value = $property->getValueList(0)->getValue(0);
-				if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
+			case 'line-height':
+				if($property){
+					$value = $property->getValueList(0)->getValue(0);
+					if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
+				}
 			break;
 			case 'display':
-				return $property->getValueList(0)->getValue(0);
+				if($property){
+					return $property->getValueList(0)->getValue(0);
+				}
 			break;
-			default: throw new \Exception("Unknow property '$key'");
-		}else switch($key){
 			case 'page-margin-top':
 				$property = $chain->getProperty('page-margin');
 				if($property){

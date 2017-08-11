@@ -151,14 +151,9 @@ class Pen {
 				$this->element($parent, $child);
 			}elseif($child instanceof Text){
 				if($this->buffer!==false) throw new \Exception('Unexpected text "'.$this->buffer.'"');
-				$this->buffer		= $child->getValue();
-				$this->bufferFont	= $this->repository->getFont(
-															$this->path->getValue('font-family')->getText(),
-															$this->path->getValue('font-size')->getMeasurement('pt'),
-															$this->path->getValue('font-style')->getText() == 'italic',
-															$this->path->getValue('font-weight')->getText() == 'bold'
-														);
-				$this->bufferColor	= $this->path->getValue('font-color');
+				$this->buffer = new \stdClass();
+				$this->buffer->text		= $child->getValue();
+				$this->buffer->style	= $this->path->getState();
 			}else{
 				throw new \Exception('Unknown node type');
 			}
@@ -176,14 +171,30 @@ class Pen {
 	private function flush($parent){
 		if($this->buffer === false) return null;
 		
-		$text = $this->preceding ? ($this->trailing ? trim($this->buffer) : ltrim($this->buffer)) : ($this->trailing ? rtrim($this->buffer) : $this->buffer);
+		$text = $this->preceding ? ($this->trailing ? trim($this->buffer->text) : ltrim($this->buffer->text)) : ($this->trailing ? rtrim($this->buffer->text) : $this->buffer->text);
+		$style =  $this->buffer->style;
 		
 		$this->buffer		= false;
 		$this->preceding	= false;
 		$this->trailing		= false;
 		
 		if($text){
-			$parent->appendText($text, $this->bufferFont, sprintf('#%02X%02X%02X', $this->bufferColor->getRed(), $this->bufferColor->getGreen(), $this->bufferColor->getBlue()));
+			$name	= $style->getValue('font-family')->getText();
+			$size	= $style->getValue('font-size')->getMeasurement('pt');
+			$italic	= $style->getValue('font-style')->getText() == 'italic';
+			$bold	= $style->getValue('font-weight')->getText() == 'bold';
+			
+			$font	= $this->repository->getFont($name, $size, $italic, $bold);
+			$color	= $style->getValue('font-color');
+			
+			
+			if($value = $style->getValue('line-height')){
+				$lineHeight = $value->getMeasurement('pt');
+			}else{
+				$lineHeight = false;
+			}
+			
+			$parent->appendText($text, $font, $color, $lineHeight);
 			return true;
 		}
 		return false;
