@@ -125,7 +125,12 @@ class Pen {
 			case 'block':
 				$this->trailing = true;
 				$this->flush($parent);
-				$this->children($parent->appendBlock(new Section($parent->getContentWidth())), $element, true);
+				$style = [];
+				if($value = $this->path->getValue('margin-left')) $style['margin-left'] = $value->getMeasurement('pt');
+				if($value = $this->path->getValue('margin-right')) $style['margin-right'] = $value->getMeasurement('pt');
+				if($value = $this->path->getValue('margin-top')) $style['margin-top'] = $value->getMeasurement('pt');
+				if($value = $this->path->getValue('margin-bottom')) $style['margin-bottom'] = $value->getMeasurement('pt');
+				$this->children($parent->appendBlock(new Section($parent->getContentWidth(), $style)), $element, true);
 				$this->preceding = true;
 			break;
 			case 'inline':

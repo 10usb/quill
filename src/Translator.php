@@ -82,6 +82,58 @@ class Translator implements \csslib\query\Translator {
 					if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
 				}
 			break;
+			case 'margin-top':
+				$property = $chain->getProperty('margin');
+				if($property){
+					if($property->getValueList(0)->getCount()==4){
+						$value = $property->getValueList(0)->getValue(0);
+					}elseif($property->getValueList(0)->getCount()==2){
+						$value = $property->getValueList(0)->getValue(0);
+					}elseif($property->getValueList(0)->getCount()==1){
+						$value = $property->getValueList(0)->getValue(0);
+					}
+					if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
+				}
+			break;
+			case 'margin-right':
+				$property = $chain->getProperty('margin');
+				if($property){
+					if($property->getValueList(0)->getCount()==4){
+						$value = $property->getValueList(0)->getValue(1);
+					}elseif($property->getValueList(0)->getCount()==2){
+						$value = $property->getValueList(0)->getValue(1);
+					}elseif($property->getValueList(0)->getCount()==1){
+						$value = $property->getValueList(0)->getValue(0);
+					}
+					if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
+				}
+			break;
+			case 'margin-bottom':
+				$property = $chain->getProperty('margin');
+				if($property){
+					if($property->getValueList(0)->getCount()==4){
+						$value = $property->getValueList(0)->getValue(2);
+					}elseif($property->getValueList(0)->getCount()==2){
+						$value = $property->getValueList(0)->getValue(0);
+					}elseif($property->getValueList(0)->getCount()==1){
+						$value = $property->getValueList(0)->getValue(0);
+					}
+					if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
+				}
+			break;
+			case 'margin-left':
+				$property = $chain->getProperty('margin');
+				if($property){
+					if($property->getValueList(0)->getCount()==4){
+						$value = $property->getValueList(0)->getValue(3);
+					}elseif($property->getValueList(0)->getCount()==2){
+						$value = $property->getValueList(0)->getValue(1);
+					}elseif($property->getValueList(0)->getCount()==1){
+						$value = $property->getValueList(0)->getValue(0);
+					}
+					if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
+				}
+			break;
 			default: throw new \Exception("Unknow property '$key'");
 		}
 		
