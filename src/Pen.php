@@ -137,7 +137,7 @@ class Pen {
 				$this->flush($parent);
 				$this->children($parent, $element, false);
 			break;
-			default: throw new \Exception('Unknown display type');
+			default: throw new \Exception('Unknown display type "'.$this->path->getValue('display').'"');
 		}
 		
 		$this->path->pop();
