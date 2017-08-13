@@ -130,6 +130,15 @@ class Pen {
 				if($value = $this->path->getValue('margin-right')) $style['margin-right'] = $value->getMeasurement('pt');
 				if($value = $this->path->getValue('margin-top')) $style['margin-top'] = $value->getMeasurement('pt');
 				if($value = $this->path->getValue('margin-bottom')) $style['margin-bottom'] = $value->getMeasurement('pt');
+				
+				if($value = $this->path->getValue('padding-left')) $style['padding-left'] = $value->getMeasurement('pt');
+				if($value = $this->path->getValue('padding-right')) $style['padding-right'] = $value->getMeasurement('pt');
+				if($value = $this->path->getValue('padding-top')) $style['padding-top'] = $value->getMeasurement('pt');
+				if($value = $this->path->getValue('padding-bottom')) $style['padding-bottom'] = $value->getMeasurement('pt');
+				
+				
+				if($value = $this->path->getValue('background-color')) $style['background-color'] = $value;
+
 				$this->children($parent->appendBlock(new Section($parent->getContentWidth(), $style)), $element, true);
 				$this->preceding = true;
 			break;

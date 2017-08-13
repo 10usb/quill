@@ -1,6 +1,8 @@
 <?php
 namespace quill;
 
+use csslib\values\Color;
+
 class Translator implements \csslib\query\Translator {
 	/**
 	 * 
@@ -29,129 +31,58 @@ class Translator implements \csslib\query\Translator {
 					return $property->getValueList(0)->getValue(0);
 				}
 			break;
-			case 'page-margin-top':
-				$property = $chain->getProperty(['page-margin', $key], $match);
-				if($property){
-					if($match==$key){
+			
+			case 'page-margin-top': $this->getBoxValue($chain, $value, $key, 'page-margin', 0, 0); break;
+			case 'page-margin-right': $this->getBoxValue($chain, $value, $key, 'page-margin', 1, 1); break;
+			case 'page-margin-bottom': $this->getBoxValue($chain, $value, $key, 'page-margin', 2, 0); break;
+			case 'page-margin-left': $this->getBoxValue($chain, $value, $key, 'page-margin', 3, 1); break;
+			
+			case 'margin-top': $this->getBoxValue($chain, $value, $key, 'margin', 0, 0); break;
+			case 'margin-right': $this->getBoxValue($chain, $value, $key, 'margin', 1, 1); break;
+			case 'margin-bottom': $this->getBoxValue($chain, $value, $key, 'margin', 2, 0); break;
+			case 'margin-left': $this->getBoxValue($chain, $value, $key, 'margin', 3, 1); break;
+			
+			case 'padding-top': $this->getBoxValue($chain, $value, $key, 'padding', 0, 0); break;
+			case 'padding-right': $this->getBoxValue($chain, $value, $key, 'padding', 1, 1); break;
+			case 'padding-bottom': $this->getBoxValue($chain, $value, $key, 'padding', 2, 0); break;
+			case 'padding-left': $this->getBoxValue($chain, $value, $key, 'padding', 3, 1); break;
+			
+			
+			case 'background-color':
+				if($property = $chain->getProperty(['background', $key])){
+					if($match == $key){
 						$value = $property->getValueList(0)->getValue(0);
-					}elseif($property->getValueList(0)->getCount()==4){
-						$value = $property->getValueList(0)->getValue(0);
-					}elseif($property->getValueList(0)->getCount()==2){
-						$value = $property->getValueList(0)->getValue(0);
-					}elseif($property->getValueList(0)->getCount()==1){
-						$value = $property->getValueList(0)->getValue(0);
+						if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
+					}else{
+						$list = $property->getValueList(0);
+						for($index = 0; $index < $list->getCount(); $index++){
+							if($list->getValue($index) instanceof Color){
+								$value = $list->getValue($index);
+								break;
+							}
+						}
 					}
-					if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
-				}
-			break;
-			case 'page-margin-right':
-				$property = $chain->getProperty(['page-margin', $key], $match);
-				if($property){
-					if($match==$key){
-						$value = $property->getValueList(0)->getValue(0);
-					}elseif($property->getValueList(0)->getCount()==4){
-						$value = $property->getValueList(0)->getValue(1);
-					}elseif($property->getValueList(0)->getCount()==2){
-						$value = $property->getValueList(0)->getValue(1);
-					}elseif($property->getValueList(0)->getCount()==1){
-						$value = $property->getValueList(0)->getValue(0);
-					}
-					if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
-				}
-			break;
-			case 'page-margin-bottom':
-				$property = $chain->getProperty(['page-margin', $key], $match);
-				if($property){
-					if($match==$key){
-						$value = $property->getValueList(0)->getValue(0);
-					}elseif($property->getValueList(0)->getCount()==4){
-						$value = $property->getValueList(0)->getValue(2);
-					}elseif($property->getValueList(0)->getCount()==2){
-						$value = $property->getValueList(0)->getValue(0);
-					}elseif($property->getValueList(0)->getCount()==1){
-						$value = $property->getValueList(0)->getValue(0);
-					}
-					if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
-				}
-			break;
-			case 'page-margin-left':
-				$property = $chain->getProperty(['page-margin', $key], $match);
-				if($property){
-					if($match==$key){
-						$value = $property->getValueList(0)->getValue(0);
-					}elseif($property->getValueList(0)->getCount()==4){
-						$value = $property->getValueList(0)->getValue(3);
-					}elseif($property->getValueList(0)->getCount()==2){
-						$value = $property->getValueList(0)->getValue(1);
-					}elseif($property->getValueList(0)->getCount()==1){
-						$value = $property->getValueList(0)->getValue(0);
-					}
-					if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
-				}
-			break;
-			case 'margin-top':
-				$property = $chain->getProperty(['margin', $key], $match);
-				if($property){
-					if($match==$key){
-						$value = $property->getValueList(0)->getValue(0);
-					}elseif($property->getValueList(0)->getCount()==4){
-						$value = $property->getValueList(0)->getValue(0);
-					}elseif($property->getValueList(0)->getCount()==2){
-						$value = $property->getValueList(0)->getValue(0);
-					}elseif($property->getValueList(0)->getCount()==1){
-						$value = $property->getValueList(0)->getValue(0);
-					}
-					if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
-				}
-			break;
-			case 'margin-right':
-				$property = $chain->getProperty(['margin', $key], $match);
-				if($property){
-					if($match==$key){
-						$value = $property->getValueList(0)->getValue(0);
-					}elseif($property->getValueList(0)->getCount()==4){
-						$value = $property->getValueList(0)->getValue(1);
-					}elseif($property->getValueList(0)->getCount()==2){
-						$value = $property->getValueList(0)->getValue(1);
-					}elseif($property->getValueList(0)->getCount()==1){
-						$value = $property->getValueList(0)->getValue(0);
-					}
-					if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
-				}
-			break;
-			case 'margin-bottom':
-				$property = $chain->getProperty(['margin', $key], $match);
-				if($property){
-					if($match==$key){
-						$value = $property->getValueList(0)->getValue(0);
-					}elseif($property->getValueList(0)->getCount()==4){
-						$value = $property->getValueList(0)->getValue(2);
-					}elseif($property->getValueList(0)->getCount()==2){
-						$value = $property->getValueList(0)->getValue(0);
-					}elseif($property->getValueList(0)->getCount()==1){
-						$value = $property->getValueList(0)->getValue(0);
-					}
-					if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
-				}
-			break;
-			case 'margin-left':
-				$property = $chain->getProperty(['margin', $key], $match);
-				if($property){
-					if($match==$key){
-						$value = $property->getValueList(0)->getValue(0);
-					}elseif($property->getValueList(0)->getCount()==4){
-						$value = $property->getValueList(0)->getValue(3);
-					}elseif($property->getValueList(0)->getCount()==2){
-						$value = $property->getValueList(0)->getValue(1);
-					}elseif($property->getValueList(0)->getCount()==1){
-						$value = $property->getValueList(0)->getValue(0);
-					}
-					if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
 				}
 			break;
 			default: throw new \Exception("Unknow property '$key'");
 		}
 		
 		return $value;
+	}
+	
+	private function getBoxValue($chain, &$value, $key, $group, $index4, $index2){
+		$property = $chain->getProperty([$group, $key], $match);
+		if($property){
+			if($match == $key){
+				$value = $property->getValueList(0)->getValue(0);
+			}elseif($property->getValueList(0)->getCount()==4){
+				$value = $property->getValueList(0)->getValue($index4);
+			}elseif($property->getValueList(0)->getCount()==2){
+				$value = $property->getValueList(0)->getValue($index2);
+			}elseif($property->getValueList(0)->getCount()==1){
+				$value = $property->getValueList(0)->getValue(0);
+			}
+			if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
+		}
 	}
 }
