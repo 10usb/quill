@@ -2,6 +2,8 @@
 namespace quill;
 
 use csslib\values\Color;
+use csslib\values\Measurement;
+use csslib\values\Name;
 
 class Translator implements \csslib\query\Translator {
 	/**
@@ -50,7 +52,64 @@ class Translator implements \csslib\query\Translator {
 			
 			case 'background-color':
 				if($property = $chain->getProperty(['background', $key])){
-					if($match == $key){
+					if($property->getName() == $key){
+						$value = $property->getValueList(0)->getValue(0);
+						if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
+					}else{
+						$list = $property->getValueList(0);
+						for($index = 0; $index < $list->getCount(); $index++){
+							if($list->getValue($index) instanceof Color){
+								$value = $list->getValue($index);
+								break;
+							}
+						}
+					}
+				}
+			break;
+			case 'border-top-width':
+			case 'border-right-width':
+			case 'border-bottom-width':
+			case 'border-left-width':
+				if($property = $chain->getProperty(['border', 'border-width', substr($key, 0, -6), $key])){
+					if($property->getName() == $key){
+						$value = $property->getValueList(0)->getValue(0);
+						if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
+					}else{
+						$list = $property->getValueList(0);
+						for($index = 0; $index < $list->getCount(); $index++){
+							if($list->getValue($index) instanceof Measurement){
+								$value = $list->getValue($index);
+								break;
+							}
+						}
+					}
+				}
+			break;
+			case 'border-top-style':
+			case 'border-right-style':
+			case 'border-bottom-style':
+			case 'border-left-style':
+				if($property = $chain->getProperty(['border', 'border-style', substr($key, 0, -6), $key])){
+					if($property->getName() == $key){
+						$value = $property->getValueList(0)->getValue(0);
+						if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
+					}else{
+						$list = $property->getValueList(0);
+						for($index = 0; $index < $list->getCount(); $index++){
+							if($list->getValue($index) instanceof Name){
+								$value = $list->getValue($index);
+								break;
+							}
+						}
+					}
+				}
+			break;
+			case 'border-top-color':
+			case 'border-right-color':
+			case 'border-bottom-color':
+			case 'border-left-color':
+				if($property = $chain->getProperty(['border', 'border-color', substr($key, 0, -6), $key])){
+					if($property->getName() == $key){
 						$value = $property->getValueList(0)->getValue(0);
 						if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
 					}else{
