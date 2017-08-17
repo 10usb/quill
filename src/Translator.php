@@ -28,6 +28,7 @@ class Translator implements \csslib\query\Translator {
 					if($value=='inherit') $value = $this->getValue($chain->getParent(), $document, $key);
 				}
 			break;
+			case 'quill-type':
 			case 'display':
 				if($property = $chain->getProperty($key)){
 					return $property->getValueList(0)->getValue(0);

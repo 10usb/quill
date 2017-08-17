@@ -29,7 +29,7 @@ trait Attributes {
 	 * @return string
 	 */
 	public function getAttribute($name){
-		return $this->attributes[$name];
+		return $this->attributes[$name] ?? null;
 	}
 	
 	/**
