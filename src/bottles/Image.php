@@ -45,6 +45,5 @@ class Image implements Ink {
 			$parent->appendBlock(new \alf\Image($source, $style));
 		}
 		return false;
-		
 	}
 }

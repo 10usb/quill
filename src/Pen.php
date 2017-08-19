@@ -5,6 +5,7 @@ use csslib\query\Path;
 use alf\Section;
 use quill\bottles\Basic;
 use quill\bottles\Image;
+use quill\bottles\Block;
 
 class Pen {
 	/**
@@ -62,6 +63,7 @@ class Pen {
 		$this->trailing		= false;
 		$this->bottles		= [
 			'default'	=> new Basic(),
+			'block'		=> new Block(),
 			'image'		=> new Image()
 		];
 	}
@@ -115,25 +117,18 @@ class Pen {
 		
 		$this->element($body, $section->getBody(), true);
 		
-		
-		if(isset($_GET['debug'])){
-			$body->render(new \pdfcreator\DebugCanvas());
-			return;
-		}
-		
 		if(!$this->book->hasSize()) $this->book->setSize($width, $height);
-		/*
-		 // Slice the body into pages
-		 $pageHeight = $catalog->getHeight();
-		 while($slice = $body->slice($pageHeight)){
-		 $page = $file->getCatalog()->addPage();
-		 $slice->render(new PDFCanvas($page->getCanvas()));
-		 }
-		 $page = $catalog->addPage();
-		 $slice->render(new PDFCanvas($page->getCanvas()));
-		 */
+		
+		/** /
+		while($slice = $body->slice($height)){
+			$canvas = $this->book->addPage($width, $height);
+			$slice->render($canvas);
+			// TODO reader header & footer
+		}
+		/* */
 		$canvas = $this->book->addPage($width, $height);
 		$body->render($canvas);
+		// TODO reader header & footer
 	}
 	
 	/**
@@ -161,6 +156,9 @@ class Pen {
 			$this->flush($parent);
 			if($container = $inkt->processs($this, $parent, $element, $this->path)){
 				$this->children($container, $element, false);
+				if($container->getContentWidth(false) === false){
+					$container->pack(min($container->getCalulatedWidth(), $parent->getContentWidth()));
+				}
 			}
 		}else{
 			$this->trailing = true;
@@ -186,7 +184,7 @@ class Pen {
 			if($child instanceof Element){
 				$this->element($parent, $child);
 			}elseif($child instanceof Text){
-				if($this->buffer!==false) throw new \Exception('Unexpected text "'.$this->buffer.'"');
+				if($this->buffer!==false) throw new \Exception('Unexpected text "'.$this->buffer->text.'"');
 				$this->buffer = new \stdClass();
 				$this->buffer->text		= $child->getValue();
 				$this->buffer->style	= $this->path->getState();
