@@ -119,14 +119,16 @@ class Pen {
 		
 		if(!$this->book->hasSize()) $this->book->setSize($width, $height);
 		
-		/** /
+
 		while($slice = $body->slice($height)){
 			$canvas = $this->book->addPage($width, $height);
+			//$slice->setPreferredHeight($height);
 			$slice->render($canvas);
 			// TODO reader header & footer
 		}
-		/* */
+		
 		$canvas = $this->book->addPage($width, $height);
+		//$body->setPreferredHeight($height);
 		$body->render($canvas);
 		// TODO reader header & footer
 	}
@@ -148,8 +150,8 @@ class Pen {
 			}
 		}
 		
-		$type = $this->path->getValue('quill-type')->getText();
-		if(!isset($this->bottles[$type])) throw new \Exception('Unknow quill type `'.$type.'`');
+		$type = $this->path->getValue('-quill-type')->getText();
+		if(!isset($this->bottles[$type])) throw new \Exception('Unknow Quill type `'.$type.'`');
 		$inkt = $this->bottles[$type];
 		
 		if($inkt->isInline($this->path)){
