@@ -5,85 +5,88 @@ use quill\states\Initial;
 
 class Parser {
 	private $parser;
-	private $stack;
-	private $current;
 	private $document;
 	
 	public function __construct($document){
 		$this->document	= $document;
-		$this->stack	= [];
-		$this->current	= new \stdClass();
-		$this->current->name	= false;
-		$this->current->state	= new Initial();
 		
-	}
-	
-	public function parse($data){
-		$parser = xml_parser_create('UTF-8');
-		xml_parser_set_option($parser, XML_OPTION_CASE_FOLDING, false);
-		
-		$buffer = false;
-		xml_set_element_handler($parser, function($parser, $name, $attributes) use (&$buffer) {
-			if($buffer !== false){
-				$this->current->state->text($this, $buffer);
-				$buffer = false;
+		$this->parser = new class($this) extends Sax {
+			private $parser;
+			private $stack;
+			private $current;
+			
+			public function __construct($parser){
+				parent::__construct();
+				$this->parser	= $parser;
+				$this->stack	= [];
+				$this->current	= new \stdClass();
+				$this->current->name	= false;
+				$this->current->state	= new Initial();
 			}
 			
-			$next = new \stdClass();
-			$next->name		= $name;
-			$next->state	= $this->current->state->element($this, $name, $attributes);
-			if(!$next->state) throw new \Exception('Unexpected element "'.$name.'"');
-			
-			$this->stack[] = $this->current;
-			$this->current = $next;
-			
-			$this->current->state->open($this, $name, $attributes);
-		}, function($parser, $name) use (&$buffer) {
-			if($this->current->name === false) throw new \Exception('Unexpected close tag');
-			if($this->current->name != $name) throw new \Exception('Unexpected close tag "'.$name.'" expected "'.$this->current->name.'"');
-			
-			if($buffer !== false){
-				$this->current->state->text($this, $buffer);
-				$buffer = false;
+			public function start($name, $attributes){
+				if($this->buffer !== false){
+					$this->current->state->text($this->parser, $this->buffer);
+					$this->buffer = false;
+				}
+				
+				$next = new \stdClass();
+				$next->name		= $name;
+				$next->state	= $this->current->state->element($this->parser, $name, $attributes);
+				if(!$next->state) throw new \Exception('Unexpected element "'.$name.'"');
+				
+				$this->stack[] = $this->current;
+				$this->current = $next;
+				
+				$this->current->state->open($this->parser, $name, $attributes);
 			}
 			
-			$this->current->state->close($this, $this->current->name);
-			$this->current = array_pop($this->stack);
-		});
-		
-		xml_set_character_data_handler($parser, function($parser, $data) use (&$buffer) {
-			if($buffer===false){
-				$buffer = $data;
-			}else{
-				$buffer.= $data;
+			public function end($name){
+				if($this->current->name === false) throw new \Exception('Unexpected close tag');
+				if($this->current->name != $name) throw new \Exception('Unexpected close tag "'.$name.'" expected "'.$this->current->name.'"');
+				
+				if($this->buffer !== false){
+					$this->current->state->text($this->parser, $this->buffer);
+					$this->buffer = false;
+				}
+				
+				$this->current->state->close($this->parser, $this->current->name);
+				$this->current = array_pop($this->stack);
 			}
-		});
-		
-		xml_set_default_handler($parser, function($parser, $data) use (&$buffer) {
-			if(preg_match('/^\&[a-z0-9]+\;$/i', $data)){
-				$value = html_entity_decode($data, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-				if($value!=$data){
-					if($buffer===false){
-						$buffer = $value;
+			
+			public function text($text){
+				if($this->buffer===false){
+					$this->buffer = $text;
+				}else{
+					$this->buffer.= $text;
+				}
+			}
+			
+			public function comments($text){
+				if($this->buffer !== false){
+					$this->current->state->text($this->parser, $buffer);
+					$this->buffer = false;
+				}
+				$this->current->state->comment($this->parser, $text);
+			}
+			
+			public function entity($text){
+				$value = html_entity_decode("&$text;", ENT_QUOTES | ENT_HTML5, 'ISO-8859-1');
+				if($value != $data){
+					if($this->buffer === false){
+						$this->buffer = $value;
 					}else{
-						$buffer.= $value;
+						$this->buffer.= $value;
 					}
 				}else{
 					throw new \Exception('Failed to decode entity');
 				}
-			}elseif(preg_match('/^\<\!\-\-(.+)\-\-\>/is', $data, $matches)){
-				if($buffer !== false){
-					$this->current->state->text($this, $buffer);
-					$buffer = false;
-				}
-				$this->current->state->comment($this, $matches[1]);
-			}else{
-				throw new \Exception('Unsupported format');
 			}
-		});
-		
-		xml_parse($parser, $data);
-		return xml_parser_free($parser);
+		};
+	}
+	
+	public function parse($stream){
+		$this->parser->parse($stream);
 	}
 	
 	/**

@@ -4,7 +4,6 @@
 	"type": "library",
 	"require": {
 		"php": ">=7.0",
-		"ext-xml": "0",
 		"ext-xmlwriter": "0.1",
 		"10usb/css-lib": "1.0.*",
 		"10usb/alf": "1.0.*"
